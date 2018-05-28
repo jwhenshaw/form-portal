@@ -149,7 +149,7 @@ BookingSteps.propTypes = {
   onClose: PropTypes.func,
   onConfirm: PropTypes.func,
 
-  orders: PropTypes.object,
+  orders: PropTypes.array,
   quantity: PropTypes.number,
   date: PropTypes.object,
   time: PropTypes.object,

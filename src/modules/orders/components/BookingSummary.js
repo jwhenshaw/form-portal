@@ -16,8 +16,8 @@ const BookingSummary = ({ orders, quantity, date, time }) => (
       </Grid>
       <div>
         {orders.map(order => (
-          <div key={order} style={{ marginLeft: '35px' }}>
-            {order}
+          <div key={order.id} style={{ marginLeft: '35px' }}>
+            {order.label}
           </div>
         ))}
       </div>
@@ -26,10 +26,10 @@ const BookingSummary = ({ orders, quantity, date, time }) => (
 );
 
 BookingSummary.propTypes = {
-  orders: PropTypes.array,
-  quantity: PropTypes.number,
-  date: PropTypes.object,
-  time: PropTypes.object,
+  orders: PropTypes.array.isRequired,
+  quantity: PropTypes.number.isRequired,
+  date: PropTypes.object.isRequired,
+  time: PropTypes.object.isRequired,
 };
 
 export default BookingSummary;

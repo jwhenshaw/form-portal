@@ -5,16 +5,17 @@ import { Button, Grid } from '@material-ui/core';
 
 import * as actions from '../../actions';
 import { ordersSelector } from '../../../../state/reducers';
+import { checkedOrdersSelector } from '../../../../state/reducers/orders';
 
 import PurchaseOrderList from './PurchaseOrderList';
 import BookingModal from '../BookingModal';
 
-const mockOrders = {
-  0: { label: 'Purchase Order 1' },
-  1: { label: 'Purchase Order 2' },
-  2: { label: 'Purchase Order 3' },
-  3: { label: 'Purchase Order 4' },
-};
+const mockOrders = [
+  { id: 0, label: 'Purchase Order 1' },
+  { id: 1, label: 'Purchase Order 2' },
+  { id: 2, label: 'Purchase Order 3' },
+  { id: 3, label: 'Purchase Order 4' },
+];
 
 const mockFetchOrders = () =>
   new Promise(resolve => {
@@ -22,9 +23,6 @@ const mockFetchOrders = () =>
       resolve(mockOrders);
     }, 2000);
   });
-
-const getCheckedOrderKeys = purchaseOrders =>
-  Object.keys(purchaseOrders).filter(key => purchaseOrders[key].checked);
 
 class Outstanding extends React.Component {
   state = {
@@ -42,12 +40,7 @@ class Outstanding extends React.Component {
 
     if (setPurchaseOrders) {
       const orders = await mockFetchOrders();
-      const uncheckedOrders = Object.keys(orders).reduce((acc, id) => {
-        return {
-          ...acc,
-          [id]: { label: orders[id].label, checked: false },
-        };
-      }, {});
+      const uncheckedOrders = orders.map(order => ({ ...order, checked: false }));
       setPurchaseOrders(uncheckedOrders);
     }
   };
@@ -57,16 +50,26 @@ class Outstanding extends React.Component {
     const value = target.type === 'checkbox' ? target.checked : target.value;
 
     const { purchaseOrders, setPurchaseOrders } = this.props;
-    setPurchaseOrders({
-      ...purchaseOrders,
-      [id]: {
-        ...purchaseOrders[id],
+    const affectedOrder = purchaseOrders.filter(order => order.id === id)[0];
+    const filteredOrders = purchaseOrders.filter(order => order.id !== id);
+
+    setPurchaseOrders([
+      ...filteredOrders,
+      {
+        ...affectedOrder,
         checked: value,
       },
-    });
+    ]);
+  };
+
+  setOrdersToBook = () => {
+    // set selected purchase orders in redux
+    const { checkedOrders, setBookingOrders } = this.props;
+    setBookingOrders(checkedOrders);
   };
 
   openBookingModal = () => {
+    this.setOrdersToBook();
     this.setState({ modalOpen: true });
   };
 
@@ -84,11 +87,11 @@ class Outstanding extends React.Component {
   };
 
   render() {
-    const { purchaseOrders } = this.props;
+    const { checkedOrders, purchaseOrders } = this.props;
 
     if (!purchaseOrders) return <div>Loading...</div>;
 
-    const actionDisabled = !getCheckedOrderKeys(purchaseOrders).length;
+    const actionDisabled = !checkedOrders.length;
     return (
       <React.Fragment>
         <Grid container spacing={24}>
@@ -127,6 +130,7 @@ class Outstanding extends React.Component {
 
 const mapStateToProps = state => ({
   purchaseOrders: ordersSelector(state).purchaseOrders,
+  checkedOrders: checkedOrdersSelector(ordersSelector(state)),
 });
 
 const mapDispatchToProps = dispatch => bindActionCreators(actions, dispatch);

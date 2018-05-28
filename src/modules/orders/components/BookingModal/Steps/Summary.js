@@ -1,8 +1,8 @@
 import React from 'react';
 import { connect } from 'react-redux';
 
-import { checkedOrdersSelector } from '../../../../../state/reducers/orders';
-import { bookingSelector, ordersSelector } from '../../../../../state/reducers';
+import { bookingOrdersSelector } from '../../../../../state/reducers/booking';
+import { bookingSelector } from '../../../../../state/reducers';
 import {
   bookingDateSelector,
   bookingQuantitySelector,
@@ -13,14 +13,10 @@ import BookingSummary from '../../BookingSummary';
 const Summary = props => <BookingSummary {...props} />;
 
 const mapStateToProps = state => {
-  const ordersState = ordersSelector(state);
   const bookingState = bookingSelector(state);
 
-  const ordersObj = checkedOrdersSelector(ordersState);
-  const orders = Object.keys(ordersObj).map(key => ordersObj[key].label);
-
   return {
-    orders,
+    orders: bookingOrdersSelector(bookingState),
     quantity: bookingQuantitySelector(bookingState),
     date: bookingDateSelector(bookingState),
     time: bookingTimeSelector(bookingState),

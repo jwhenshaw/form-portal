@@ -7,26 +7,36 @@ import { withStyles } from '@material-ui/core/styles';
 
 import * as actions from '../../actions';
 import { bookingsSelector } from '../../../../state/reducers/booked';
-import { bookingSelector, bookedSelector } from '../../../../state/reducers';
+import { bookedSelector } from '../../../../state/reducers';
 
 import BookingModal from '../BookingModal';
 import BookingSummary from '../BookingSummary';
 
 const mockBookings = [
   {
-    orders: ['Purchase Order 1', 'Purchase Order 11'],
+    id: 1,
+    orders: [{ id: 1, label: 'Purchase Order 1' }],
     quantity: 4,
     date: new Date(),
     time: new Date(),
   },
   {
-    orders: ['Purchase Order 2', 'Purchase Order 22'],
+    id: 2,
+    orders: [
+      { id: 2, label: 'Purchase Order 2' },
+      { id: 22, label: 'Purchase Order 22' },
+    ],
     quantity: 8,
     date: new Date(),
     time: new Date(),
   },
   {
-    orders: ['Purchase Order 3'],
+    id: 3,
+    orders: [
+      { id: 3, label: 'Purchase Order 3' },
+      { id: 33, label: 'Purchase Order 33' },
+      { id: 333, label: 'Purchase Order 333' },
+    ],
     quantity: 16,
     date: new Date(),
     time: new Date(),
@@ -65,10 +75,14 @@ class BookedView extends React.Component {
     }
   };
 
-  showBookingModal = (booking) => {
-    const {setBookingOrders} = this.props;
-    setBookingOrders();
+  showBookingModal = booking => {
+    const { setBookingOrders } = this.props;
+
+    const { orders } = booking;
+    setBookingOrders(orders);
+
     this.setState({
+      bookingInFlux: booking,
       showBookingModal: true,
     });
   };
@@ -79,12 +93,13 @@ class BookedView extends React.Component {
     });
   };
 
-  handleConfirmBookingChange = async () => {
-    const { bookingToPersist } = this.props;
-    console.log({ bookingToPersist });
-
-    // remove booking from list
+  handleConfirmBookingChange = async booking => {
+    // const { bookings, bookingInFlux } = this.state;
+    // const bookingIds = Object.keys(bookings);
+    // // remove booking from list
+    // const bookingSet = new Set();
     // set new booking
+    this.hideBookingModal();
   };
 
   render() {
@@ -95,16 +110,16 @@ class BookedView extends React.Component {
 
     return (
       <React.Fragment>
-        {Object.keys(bookings).map(key => (
-          <Grid container spacing={24} key={key}>
+        {bookings.map(booking => (
+          <Grid container spacing={24} key={booking.id}>
             <Grid item xs={8}>
-              <BookingSummary id={key} key={key} {...bookings[key]} />{' '}
+              <BookingSummary id={booking.id} key={booking.id} {...booking} />{' '}
             </Grid>
             <Grid item xs={4}>
               <Button
                 color="secondary"
                 className={classes.button}
-                onClick={this.showBookingModal}
+                onClick={() => this.showBookingModal(booking.id)}
               >
                 Change Booking
               </Button>
@@ -123,12 +138,12 @@ class BookedView extends React.Component {
 
 BookedView.propTypes = {
   bookings: PropTypes.array,
-  bookingToPersist: PropTypes.object,
+  setBookings: PropTypes.func,
+  setBookingOrders: PropTypes.func,
 };
 
 const mapStateToProps = state => ({
   bookings: bookingsSelector(bookedSelector(state)),
-  bookingToPersist: bookingSelector(state),
 });
 
 const mapDispatchToProps = dispatch => ({

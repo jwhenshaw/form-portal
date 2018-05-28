@@ -1,18 +1,26 @@
-import React from "react";
-import { Grid } from "@material-ui/core";
+import React from 'react';
+import PropTypes from 'prop-types';
+import { Grid } from '@material-ui/core';
 
-import PurchaseOrderItem from "./PurchaseOrderItem";
+import PurchaseOrderItem from './PurchaseOrderItem';
 
-export default ({ orders, onClickItem }) => (
+const OrderList = ({ orders, onClickItem }) => (
   <Grid item xs={12}>
     {orders &&
-      Object.keys(orders).map(id => (
+      orders.map(order => (
         <PurchaseOrderItem
-          key={id}
-          checked={orders[id].checked}
-          label={orders[id].label}
-          onClick={event => onClickItem({ id, event })}
+          key={order.id}
+          checked={order.checked}
+          label={order.label}
+          onClick={event => onClickItem({ id: order.id, event })}
         />
       ))}
   </Grid>
 );
+
+OrderList.propTypes = {
+  orders: PropTypes.array.isRequired,
+  onClickItem: PropTypes.func.isRequired,
+};
+
+export default OrderList;

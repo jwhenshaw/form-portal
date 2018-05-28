@@ -1,14 +1,8 @@
-import * as actionTypes from "../actionTypes";
+import * as actionTypes from '../actionTypes';
 
 const removeOrders = (orders, toRemove) => {
-  const toRemoveKeys = Object.keys(toRemove);
-  return Object.keys(orders).reduce((acc, key) => {
-    if (toRemoveKeys.includes(key)) return acc;
-    return {
-      ...acc,
-      [key]: orders[key]
-    };
-  }, {});
+  const toRemoveIds = toRemove.map(order => order.id);
+  return orders.filter(order => !toRemoveIds.includes(order.id));
 };
 
 export default (state = {}, action) => {
@@ -16,15 +10,15 @@ export default (state = {}, action) => {
     case actionTypes.SET_PURCHASE_ORDERS:
       return {
         ...state,
-        purchaseOrders: action.purchaseOrders
+        purchaseOrders: action.purchaseOrders,
       };
     case actionTypes.REMOVE_PURCHASE_ORDERS: {
-      const purchaseOrders = state.purchaseOrders || {};
-      const toRemove = action.purchaseOrders;
+      const purchaseOrders = state.purchaseOrders || [];
+      const toRemove = action.purchaseOrders || [];
       const remaining = removeOrders(purchaseOrders, toRemove);
       return {
         ...state,
-        purchaseOrders: remaining
+        purchaseOrders: remaining,
       };
     }
     default:
@@ -34,13 +28,9 @@ export default (state = {}, action) => {
 
 export const ordersSelector = state => state.purchaseOrders;
 export const checkedOrdersSelector = state => {
-  const orders = state.purchaseOrders;
-  return Object.keys(orders).reduce((acc, key) => {
-    if (!orders[key].checked) return acc;
-
-    return {
-      ...acc,
-      [key]: orders[key]
-    };
-  }, {});
+  const orders = state.purchaseOrders || [];
+  return orders.reduce((acc, order) => {
+    if (!order.checked) return acc;
+    return [...acc, order];
+  }, []);
 };

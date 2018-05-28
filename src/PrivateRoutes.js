@@ -1,7 +1,6 @@
 import React from 'react';
 import { Route } from 'react-router-dom';
 
-import withBasicAuth from '../src/modules/auth/components/withBasicAuth';
 import OrderPage from '../src/modules/orders/pages';
 
 const privateRoutes = {
