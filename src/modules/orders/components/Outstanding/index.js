@@ -1,19 +1,19 @@
-import React from "react";
-import { connect } from "react-redux";
-import { bindActionCreators } from "redux";
-import { Button, Grid } from "@material-ui/core";
+import React from 'react';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import { Button, Grid } from '@material-ui/core';
 
-import * as actions from "../../actions";
-import { ordersSelector } from "../../../../state/reducers";
+import * as actions from '../../actions';
+import { ordersSelector } from '../../../../state/reducers';
 
-import PurchaseOrderList from "./PurchaseOrderList";
-import BookingModal from "../BookingModal";
+import PurchaseOrderList from './PurchaseOrderList';
+import BookingModal from '../BookingModal';
 
 const mockOrders = {
-  0: { label: "Purchase Order 1" },
-  1: { label: "Purchase Order 2" },
-  2: { label: "Purchase Order 3" },
-  3: { label: "Purchase Order 4" }
+  0: { label: 'Purchase Order 1' },
+  1: { label: 'Purchase Order 2' },
+  2: { label: 'Purchase Order 3' },
+  3: { label: 'Purchase Order 4' },
 };
 
 const mockFetchOrders = () =>
@@ -28,7 +28,7 @@ const getCheckedOrderKeys = purchaseOrders =>
 
 class Outstanding extends React.Component {
   state = {
-    modalOpen: false
+    modalOpen: false,
   };
 
   componentDidMount() {
@@ -45,7 +45,7 @@ class Outstanding extends React.Component {
       const uncheckedOrders = Object.keys(orders).reduce((acc, id) => {
         return {
           ...acc,
-          [id]: { label: orders[id].label, checked: false }
+          [id]: { label: orders[id].label, checked: false },
         };
       }, {});
       setPurchaseOrders(uncheckedOrders);
@@ -54,15 +54,15 @@ class Outstanding extends React.Component {
 
   handleInputChange = ({ id, event }) => {
     const target = event.target;
-    const value = target.type === "checkbox" ? target.checked : target.value;
+    const value = target.type === 'checkbox' ? target.checked : target.value;
 
     const { purchaseOrders, setPurchaseOrders } = this.props;
     setPurchaseOrders({
       ...purchaseOrders,
       [id]: {
         ...purchaseOrders[id],
-        checked: value
-      }
+        checked: value,
+      },
     });
   };
 
@@ -74,7 +74,7 @@ class Outstanding extends React.Component {
     this.setState({ modalOpen: false });
   };
 
-  handleConfirm = async (ordersToRemove) => {
+  handleConfirm = async ordersToRemove => {
     const { removePurchaseOrders } = this.props;
     // Update redux
     // remove the purchase orders in this booking.
