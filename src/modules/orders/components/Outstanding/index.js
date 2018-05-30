@@ -40,7 +40,10 @@ class Outstanding extends React.Component {
 
     if (setPurchaseOrders) {
       const orders = await mockFetchOrders();
-      const uncheckedOrders = orders.map(order => ({ ...order, checked: false }));
+      const uncheckedOrders = orders.map(order => ({
+        ...order,
+        checked: false,
+      }));
       setPurchaseOrders(uncheckedOrders);
     }
   };
@@ -50,16 +53,13 @@ class Outstanding extends React.Component {
     const value = target.type === 'checkbox' ? target.checked : target.value;
 
     const { purchaseOrders, setPurchaseOrders } = this.props;
-    const affectedOrder = purchaseOrders.filter(order => order.id === id)[0];
-    const filteredOrders = purchaseOrders.filter(order => order.id !== id);
 
-    setPurchaseOrders([
-      ...filteredOrders,
-      {
-        ...affectedOrder,
-        checked: value,
-      },
-    ]);
+    const orders = purchaseOrders.reduce((acc, order) => {
+      if (order.id !== id) return [...acc, order];
+      return [...acc, { ...order, checked: value }];
+    }, []);
+
+    setPurchaseOrders(orders);
   };
 
   setOrdersToBook = () => {
