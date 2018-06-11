@@ -79,7 +79,6 @@ class BookedView extends React.Component {
     const { setBookingOrders } = this.props;
 
     const { orders } = booking;
-    console.log({ booking });
     setBookingOrders(orders);
 
     this.setState({

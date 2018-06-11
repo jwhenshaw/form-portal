@@ -1,6 +1,4 @@
 import React from 'react';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
 import { withStyles, Step, Stepper, StepLabel } from '@material-ui/core';
 
@@ -10,14 +8,7 @@ import Summary from './Summary';
 import StepActions from './Actions';
 import QuantityStep from './Quantity';
 
-import * as actions from '../../../actions';
-import { checkedOrdersSelector } from '../../../../../state/reducers/orders';
-import { bookingSelector, ordersSelector } from '../../../../../state/reducers';
-import {
-  bookingDateSelector,
-  bookingQuantitySelector,
-  bookingTimeSelector,
-} from '../../../../../state/reducers/booking';
+import { BookingContext } from '..';
 
 const styles = theme => ({
   root: {
@@ -105,7 +96,7 @@ class BookingSteps extends React.Component {
   };
 
   render() {
-    const { onConfirm, orders, classes } = this.props;
+    const { onConfirm, orders, date, time, quantity, classes } = this.props;
     const steps = getSteps();
     const { activeStep } = this.state;
 
@@ -131,7 +122,7 @@ class BookingSteps extends React.Component {
             classes={classes}
             onBack={this.handleBack}
             onConfirm={() => {
-              onConfirm(orders);
+              onConfirm({ orders, date, time, quantity });
             }}
             onNext={this.handleNext}
             onReset={this.handleReset}
@@ -155,24 +146,10 @@ BookingSteps.propTypes = {
   time: PropTypes.object,
 };
 
-const mapStateToProps = state => {
-  const ordersState = ordersSelector(state);
-  const bookingState = bookingSelector(state);
-
-  return {
-    orders: checkedOrdersSelector(ordersState),
-    quantity: bookingQuantitySelector(bookingState),
-    date: bookingDateSelector(bookingState),
-    time: bookingTimeSelector(bookingState),
-  };
-};
-
-const mapDispatchToProps = dispatch => ({
-  ...bindActionCreators(actions, dispatch),
-});
-
-const ConnectedBookingSteps = connect(mapStateToProps, mapDispatchToProps)(
-  BookingSteps,
+const withContext = Component => props => (
+  <BookingContext.Consumer>
+    {({ state }) => <Component {...props} {...state} />}
+  </BookingContext.Consumer>
 );
 
-export default withStyles(styles)(ConnectedBookingSteps);
+export default withStyles(styles)(withContext(BookingSteps));

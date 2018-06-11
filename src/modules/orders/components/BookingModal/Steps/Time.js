@@ -2,21 +2,15 @@ import React from 'react';
 import DatePicker from 'react-datepicker';
 
 import 'react-datepicker/dist/react-datepicker.css';
+import { BookingContext } from '..';
 
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
-
-import * as actions from '../../../actions';
-import { bookingSelector } from '../../../../../state/reducers';
-import { bookingTimeSelector } from '../../../../../state/reducers/booking';
-
-const Time = ({ setBookingTime, value }) => (
+const Time = ({ setTime, time }) => (
   <div>
     <h4>What time will the pallets be delivered?</h4>
     <DatePicker
       inline
-      selected={value}
-      onChange={setBookingTime}
+      selected={time}
+      onChange={setTime}
       showTimeSelect
       showTimeSelectOnly
       timeIntervals={15}
@@ -25,15 +19,11 @@ const Time = ({ setBookingTime, value }) => (
   </div>
 );
 
-const mapStateToProps = state => {
-  const bookingState = bookingSelector(state);
-  return {
-    value: bookingTimeSelector(bookingState),
-  };
-};
-
-const mapDispatchToProps = dispatch => ({
-  ...bindActionCreators(actions, dispatch),
-});
-
-export default connect(mapStateToProps, mapDispatchToProps)(Time);
+const withContext = Component => props => (
+  <BookingContext.Consumer>
+    {({ state: { time }, actions: { setTime } }) => (
+      <Component {...props} time={time} setTime={setTime} />
+    )}
+  </BookingContext.Consumer>
+);
+export default withContext(Time);

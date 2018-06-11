@@ -77,11 +77,10 @@ class Outstanding extends React.Component {
     this.setState({ modalOpen: false });
   };
 
-  handleConfirm = async ordersToRemove => {
-    const { removePurchaseOrders } = this.props;
-    // Update redux
-    // remove the purchase orders in this booking.
-    removePurchaseOrders(ordersToRemove);
+  handleConfirm = async ({ orders, quantity, date, time }) => {
+    // remove from this
+    
+    // Send to some global context to deal with this.
     // send api request
     this.closeBookingModal();
   };
@@ -119,6 +118,7 @@ class Outstanding extends React.Component {
           </Grid>
         </Grid>
         <BookingModal
+          orders={checkedOrders}
           open={this.state.modalOpen}
           onClose={this.closeBookingModal}
           onConfirm={this.handleConfirm}
@@ -135,4 +135,7 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => bindActionCreators(actions, dispatch);
 
-export default connect(mapStateToProps, mapDispatchToProps)(Outstanding);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(Outstanding);

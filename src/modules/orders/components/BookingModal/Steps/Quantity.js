@@ -1,35 +1,34 @@
-import React from "react";
-import { TextField } from "@material-ui/core";
-import { connect } from "react-redux";
-import { bindActionCreators } from "redux";
+import React from 'react';
+import PropTypes from 'prop-types';
+import { TextField } from '@material-ui/core';
 
-import * as actions from "../../../actions";
-import { bookingSelector } from "../../../../../state/reducers";
-import { bookingQuantitySelector } from "../../../../../state/reducers/booking";
+import { BookingContext } from '../index';
 
-const Quanity = ({ setBookingQuantity, value }) => (
+const Quantity = ({ setQuantity, quantity }) => (
   <div>
     <h4>How many pallets will be delivered?</h4>
     <TextField
       id="quantity"
-      label="Quanity"
-      value={value}
-      onChange={evt => setBookingQuantity(evt.target.value)}
+      label="Quantity"
+      value={quantity}
+      onChange={evt => setQuantity(evt.target.value)}
       type="number"
       margin="normal"
     />
   </div>
 );
 
-const mapStateToProps = state => {
-  const bookingState = bookingSelector(state);
-  return {
-    value: bookingQuantitySelector(bookingState)
-  };
+Quantity.propTypes = {
+  quantity: PropTypes.number,
+  onChange: PropTypes.func,
 };
 
-const mapDispatchToProps = dispatch => ({
-  ...bindActionCreators(actions, dispatch)
-});
+const withContext = Component => props => (
+  <BookingContext.Consumer>
+    {({ state: { quantity }, actions: { setQuantity } }) => (
+      <Component {...props} quantity={quantity} setQuantity={setQuantity} />
+    )}
+  </BookingContext.Consumer>
+);
 
-export default connect(mapStateToProps, mapDispatchToProps)(Quanity);
+export default withContext(Quantity);

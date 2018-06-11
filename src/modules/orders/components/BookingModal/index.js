@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+
 import { Modal, withStyles } from '@material-ui/core';
 
 import BookingSteps from './Steps';
@@ -26,7 +27,30 @@ const styles = theme => ({
   },
 });
 
-class SimpleModal extends React.Component {
+export const BookingContext = React.createContext({});
+
+class BookingModal extends React.Component {
+  state = {
+    quantity: 1,
+  };
+
+  static getDerivedStateFromProps(props, state) {
+    return {
+      ...state,
+      orders: props.orders,
+    };
+  }
+
+  setBookingValue = (key, value) => {
+    this.setState({
+      [key]: value,
+    });
+  };
+
+  handleDateChange = date => this.setBookingValue('date', date);
+  handleTimeChange = time => this.setBookingValue('time', time);
+  handleQuantityChange = quantity => this.setBookingValue('quantity', quantity);
+
   render() {
     const { open, onClose, onConfirm, classes } = this.props;
 
@@ -38,21 +62,33 @@ class SimpleModal extends React.Component {
         onClose={onClose}
       >
         <div style={getModalStyle()} className={classes.paper}>
-          <BookingSteps onConfirm={onConfirm} onClose={onClose} />
+          <BookingContext.Provider
+            value={{
+              state: this.state,
+              actions: {
+                setDate: this.handleDateChange,
+                setQuantity: this.handleQuantityChange,
+                setTime: this.handleTimeChange,
+              },
+            }}
+          >
+            <BookingSteps onConfirm={onConfirm} onClose={onClose} />
+          </BookingContext.Provider>
         </div>
       </Modal>
     );
   }
 }
 
-SimpleModal.propTypes = {
+BookingModal.propTypes = {
   open: PropTypes.bool,
+  orders: PropTypes.array,
   onClose: PropTypes.func,
   classes: PropTypes.object,
   onConfirm: PropTypes.func,
 };
 
 // We need an intermediary variable for handling the recursive nesting.
-const SimpleModalWrapped = withStyles(styles)(SimpleModal);
+const BookingModalWrapped = withStyles(styles)(BookingModal);
 
-export default SimpleModalWrapped;
+export default BookingModalWrapped;

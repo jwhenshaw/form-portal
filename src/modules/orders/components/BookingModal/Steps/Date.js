@@ -1,37 +1,30 @@
-import React from "react";
-import moment from "moment";
-import DatePicker from "react-datepicker";
+import React from 'react';
+import moment from 'moment';
+import PropTypes from 'prop-types';
+import DatePicker from 'react-datepicker';
 
-import "react-datepicker/dist/react-datepicker.css";
+import 'react-datepicker/dist/react-datepicker.css';
 
-import { connect } from "react-redux";
-import { bindActionCreators } from "redux";
+import { BookingContext } from '..';
 
-import * as actions from "../../../actions";
-import { bookingSelector } from "../../../../../state/reducers";
-import { bookingDateSelector } from "../../../../../state/reducers/booking";
-
-const Date = ({ setBookingDate, value }) => (
+const Date = ({ setDate, date }) => (
   <div>
     <h4>On what date will the pallets be delivered?</h4>
-    <DatePicker
-      inline
-      selected={value}
-      onChange={setBookingDate}
-      minDate={moment()}
-    />
+    <DatePicker inline selected={date} onChange={setDate} minDate={moment()} />
   </div>
 );
 
-const mapStateToProps = state => {
-  const bookingState = bookingSelector(state);
-  return {
-    value: bookingDateSelector(bookingState)
-  };
+Date.propTypes = {
+  date: PropTypes.object,
+  setDate: PropTypes.func,
 };
 
-const mapDispatchToProps = dispatch => ({
-  ...bindActionCreators(actions, dispatch)
-});
+const withContext = Component => props => (
+  <BookingContext.Consumer>
+    {({ state: { date }, actions: { setDate } }) => (
+      <Component {...props} date={date} setDate={setDate} />
+    )}
+  </BookingContext.Consumer>
+);
 
-export default connect(mapStateToProps, mapDispatchToProps)(Date);
+export default withContext(Date);
