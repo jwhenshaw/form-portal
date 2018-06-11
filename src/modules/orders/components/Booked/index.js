@@ -57,6 +57,7 @@ const styles = {
 
 class BookedView extends React.Component {
   state = {
+    bookingInEdit: {},
     showBookingModal: false,
   };
 
@@ -76,13 +77,8 @@ class BookedView extends React.Component {
   };
 
   showBookingModal = booking => {
-    const { setBookingOrders } = this.props;
-
-    const { orders } = booking;
-    setBookingOrders(orders);
-
     this.setState({
-      bookingInFlux: booking,
+      bookingInEdit: booking,
       showBookingModal: true,
     });
   };
@@ -94,17 +90,16 @@ class BookedView extends React.Component {
   };
 
   handleConfirmBookingChange = async booking => {
-    // const { bookings, bookingInFlux } = this.state;
-    // const bookingIds = Object.keys(bookings);
-    // // remove booking from list
-    // const bookingSet = new Set();
-    // set new booking
+    // const { bookingInEdit } = this.state;
+    // remove booking from list
+    // set new booking..
+    // send api request
     this.hideBookingModal();
   };
 
   render() {
     const { bookings, classes } = this.props;
-    const { showBookingModal } = this.state;
+    const { bookingInEdit, showBookingModal } = this.state;
 
     if (!bookings) return <div>Loading</div>;
 
@@ -127,6 +122,7 @@ class BookedView extends React.Component {
           </Grid>
         ))}
         <BookingModal
+          orders={bookingInEdit.orders}
           open={showBookingModal}
           onClose={this.hideBookingModal}
           onConfirm={this.handleConfirmBookingChange}
@@ -150,6 +146,7 @@ const mapDispatchToProps = dispatch => ({
   ...bindActionCreators(actions, dispatch),
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(
-  withStyles(styles)(BookedView),
-);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(withStyles(styles)(BookedView));
