@@ -1,15 +1,16 @@
 // @flow
-import React from "react";
-import { compose } from "redux";
-import { connect } from "react-redux";
-import { withRouter } from "react-router-dom";
-import { withStyles } from "@material-ui/core/styles";
-import { AppBar, Tab, Tabs } from "@material-ui/core";
+import React from 'react';
+import { compose } from 'redux';
+import { connect } from 'react-redux';
+import { withRouter } from 'react-router-dom';
+import { withStyles } from '@material-ui/core/styles';
+import { AppBar, Tab, Tabs } from '@material-ui/core';
 
-import { userSelector } from "../../../state/reducers";
+import { userSelector } from '../../../state/reducers';
 
-import Booked from "../components/Booked";
-import Outstanding from "../components/Outstanding";
+import Booked from '../components/Booked';
+import Outstanding from '../components/Outstanding';
+import { outstandingProviderHoC } from '../context/outstandingContext';
 
 const TabContainer = props => (
   <div style={{ padding: 8 * 3 }}>{props.children}</div>
@@ -18,17 +19,17 @@ const TabContainer = props => (
 const styles = theme => ({
   root: {
     flexGrow: 1,
-    backgroundColor: theme.palette.background.paper
-  }
+    backgroundColor: theme.palette.background.paper,
+  },
 });
 
 class MainPage extends React.Component {
   state = {
-    view: 0
+    view: 0,
   };
 
   componentWillMount() {
-    document.title = "Welcome | Orders";
+    document.title = 'Welcome | Orders';
   }
 
   handleChange = (event, value) => {
@@ -49,7 +50,7 @@ class MainPage extends React.Component {
         </AppBar>
         {view === 0 && (
           <TabContainer>
-            <Outstanding />{" "}
+            <Outstanding />{' '}
           </TabContainer>
         )}
         {view === 1 && (
@@ -63,11 +64,15 @@ class MainPage extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  user: userSelector(state)
+  user: userSelector(state),
 });
 
 export default compose(
   withStyles(styles),
   withRouter,
-  connect(mapStateToProps, null)
+  connect(
+    mapStateToProps,
+    null,
+  ),
+  outstandingProviderHoC,
 )(MainPage);

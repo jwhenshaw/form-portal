@@ -1,75 +1,46 @@
 import React from 'react';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
+import PropTypes from 'prop-types';
 import { Button, Grid } from '@material-ui/core';
 
-import * as actions from '../../actions';
-import { ordersSelector } from '../../../../state/reducers';
-import { checkedOrdersSelector } from '../../../../state/reducers/orders';
+import { outstandingConsumerHoC } from '../../context/outstandingContext';
 
-import PurchaseOrderList from './PurchaseOrderList';
 import BookingModal from '../BookingModal';
-
-const mockOrders = [
-  { id: 0, label: 'Purchase Order 1' },
-  { id: 1, label: 'Purchase Order 2' },
-  { id: 2, label: 'Purchase Order 3' },
-  { id: 3, label: 'Purchase Order 4' },
-];
-
-const mockFetchOrders = () =>
-  new Promise(resolve => {
-    setTimeout(() => {
-      resolve(mockOrders);
-    }, 2000);
-  });
+import PurchaseOrderList from './PurchaseOrderList';
 
 class Outstanding extends React.Component {
   state = {
     modalOpen: false,
   };
 
-  componentDidMount() {
-    if (!this.props.purchaseOrders) this.fetchPurchaseOrders();
+  static getDerivedStateFromProps(props, state) {
+    if (!props.orders) return null;
+
+    const { orders, checkedOrders } = props.orders.reduce(
+      (acc, order) => ({
+        orders: [...acc.orders, order],
+        checkedOrders: [
+          ...acc.checkedOrders,
+          ...(order.checked ? [order] : []),
+        ],
+      }),
+      {
+        orders: [],
+        checkedOrders: [],
+      },
+    );
+
+    return {
+      ...state,
+      orders,
+      checkedOrders,
+    };
   }
 
-  fetchPurchaseOrders = async () => {
-    // api call.
-    // set in redux
-    const { setPurchaseOrders } = this.props;
-
-    if (setPurchaseOrders) {
-      const orders = await mockFetchOrders();
-      const uncheckedOrders = orders.map(order => ({
-        ...order,
-        checked: false,
-      }));
-      setPurchaseOrders(uncheckedOrders);
-    }
-  };
-
   handleInputChange = ({ id, event }) => {
-    const target = event.target;
-    const value = target.type === 'checkbox' ? target.checked : target.value;
-
-    const { purchaseOrders, setPurchaseOrders } = this.props;
-
-    const orders = purchaseOrders.reduce((acc, order) => {
-      if (order.id !== id) return [...acc, order];
-      return [...acc, { ...order, checked: value }];
-    }, []);
-
-    setPurchaseOrders(orders);
-  };
-
-  setOrdersToBook = () => {
-    // set selected purchase orders in redux
-    const { checkedOrders, setBookingOrders } = this.props;
-    setBookingOrders(checkedOrders);
+    this.props.onSelectOrder({ id });
   };
 
   openBookingModal = () => {
-    this.setOrdersToBook();
     this.setState({ modalOpen: true });
   };
 
@@ -78,17 +49,14 @@ class Outstanding extends React.Component {
   };
 
   handleConfirm = async ({ orders, quantity, date, time }) => {
-    // remove from this
-    
-    // Send to some global context to deal with this.
     // send api request
     this.closeBookingModal();
   };
 
   render() {
-    const { checkedOrders, purchaseOrders } = this.props;
+    const { checkedOrders, orders } = this.state;
 
-    if (!purchaseOrders) return <div>Loading...</div>;
+    if (!orders) return <div>Loading...</div>;
 
     const actionDisabled = !checkedOrders.length;
     return (
@@ -97,7 +65,7 @@ class Outstanding extends React.Component {
           <Grid item xs={12}>
             <Grid container spacing={40}>
               <PurchaseOrderList
-                orders={purchaseOrders}
+                orders={orders}
                 onClickItem={this.handleInputChange}
               />
             </Grid>
@@ -128,14 +96,9 @@ class Outstanding extends React.Component {
   }
 }
 
-const mapStateToProps = state => ({
-  purchaseOrders: ordersSelector(state).purchaseOrders,
-  checkedOrders: checkedOrdersSelector(ordersSelector(state)),
-});
+Outstanding.propTypes = {
+  orders: PropTypes.array,
+  onSelectOrder: PropTypes.func,
+};
 
-const mapDispatchToProps = dispatch => bindActionCreators(actions, dispatch);
-
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(Outstanding);
+export default outstandingConsumerHoC(Outstanding);
